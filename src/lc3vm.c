@@ -47,8 +47,11 @@ uint16_t PC_START = 0x3000;
  *   later as something other than an unsigned integer, but this function
  *   simply reads and returns the 16 bits stored at the indicated address.
  */
-uint16_t mem_read(uint16_t address)
-{
+uint16_t mem_read(uint16_t address){
+  if (address == KBDR_ADDR){
+    iomap[KBSR] = 0x7FFF & iomap[KBSR];
+  }
+
   return mem[address];
 }
 
@@ -67,8 +70,11 @@ uint16_t mem_read(uint16_t address)
  *   stored where requested, it could actually be a signed number, or an ascii
  *   character, or some other type of data.
  */
-void mem_write(uint16_t address, uint16_t val)
-{
+void mem_write(uint16_t address, uint16_t val){
+  if(address == DDR_ADDR){
+    iomap[DSR] = 0x7FFF & iomap[DSR];
+  }
+
   mem[address] = val;
 }
 
@@ -467,13 +473,15 @@ void jsr(uint16_t i)
  * @param i The instruction.  The bits of the instruction we are
  *   executing.
  */
-void rti(uint16_t i) {
+void rti(uint16_t i) 
+{
   reg[PSR] = mem_read(reg[R6]);
   pop();
   reg[RPC] = mem_read(reg[R6]);
   pop();
 
-  if(is_user_mode()){
+  if(is_user_mode())
+  {
     reg[SSP] = reg[R6];
     reg[R6] = reg[USP];
   }
@@ -503,10 +511,12 @@ void res(uint16_t i) {}
  *   executing.  The low 7 bits i[7:0] contain the trap service vector
  *   index to be invoked.
  */
-void trap(uint16_t i) {
+void trap(uint16_t i) 
+{
   uint16_t temp = reg[PSR];
 
-  if (is_user_mode()){
+  if (is_user_mode())
+  {
     reg[USP] = reg[R6];
     reg[R6] = reg[SSP];
     supervisor_mode();
@@ -765,11 +775,14 @@ void ld_img(char* fname)
  * @returns bool True if we are in user mode (bit 15 is 1) and False if we are
  *   in supervisor mode (bit 15 is 0).
  */
-bool is_user_mode(){
-  if(0x8000 & reg[PSR]){
+bool is_user_mode()
+{
+  if(0x8000 & reg[PSR])
+  {
     return true;
   }
-  else{
+  else
+  {
     return false;
   }
 }
@@ -779,7 +792,8 @@ bool is_user_mode(){
  * Set the machine into user mode.  This function sets bit 15 to be 1 to indicate
  * that we are now running in the less privileged user mode.
  */
-void user_mode(){
+void user_mode()
+{
   reg[PSR] = (0x8000 | reg[PSR]);
 }
 
@@ -788,7 +802,8 @@ void user_mode(){
  * Set the machine into supervisor mode.  This function sets bit 15 to be 0
  * to indicate that we are now running in the more privileged supervisor mode.
  */
-void supervisor_mode(){
+void supervisor_mode()
+{
   reg[PSR] = (0x7FFF & reg[PSR]);
 }
 
@@ -801,7 +816,8 @@ void supervisor_mode(){
  *   significant 3 bits should have any value since only priority levels
  *   0 - 7 are possible
  */
-uint16_t priority(){
+uint16_t priority()
+{
   return (0x0007 & (reg[PSR] >> 8));
 }
 
@@ -815,7 +831,8 @@ uint16_t priority(){
  *   it is undefined what happens if a value not in this range is set for the
  *   priority.
  */
-void set_priority(uint16_t p){
+void set_priority(uint16_t p)
+{
   reg[PSR] = (p << 8) | (0xF8FF & reg[PSR]);
 }
 
@@ -829,7 +846,8 @@ void set_priority(uint16_t p){
  *
  * @param value
  */
-void push(uint16_t value){
+void push(uint16_t value)
+{
   reg[R6] -= 1;
   mem_write(reg[R6], value);
 }
@@ -840,7 +858,8 @@ void push(uint16_t value){
  * that `R6` holds the address of the top of the current stack in use
  * by the running program.
  */
-void pop(){
+void pop()
+{
   reg[R6] += 1;
 }
 
@@ -849,7 +868,8 @@ void pop(){
  * Enable the clock run by setting the MCR run latch bit [15]
  * to 1.
  */
-void enable_clock(){
+void enable_clock()
+{
   reg[MCR] = 0x8000 | reg[MCR];
 }
 
@@ -858,7 +878,8 @@ void enable_clock(){
  * Disable the machine clock by setting the MCR run latch bit
  * [15] to 0.
  */
-void disable_clock(){
+void disable_clock()
+{
   reg[MCR] = 0x7FFF & reg[MCR];
 }
 
@@ -871,7 +892,8 @@ void disable_clock(){
  * @returns bool True if the clock is currently enabled and thus the
  *   system is currently running, false if not.
  */
-bool is_running(){
+bool is_running()
+{
   return 0x8000 & reg[MCR];
 }
 
