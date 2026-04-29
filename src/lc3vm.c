@@ -1,9 +1,9 @@
 /** @file lc3vm.c
  * @brief LC-3 VM Implementation
  *
- * @author Student Name
- * @note   cwid: 123456
- * @date   Spring 2024
+ * @author Daniel Vega
+ * @note   cwid: 50311305
+ * @date   Spring 2026
  * @note   ide:  g++ 8.2.0 / GNU Make 4.2.1
  *
  * Implementation of LC-3 VM/Microarchitecture simulator.  Functions
@@ -48,6 +48,11 @@ uint16_t PC_START = 0x3000;
  *   simply reads and returns the 16 bits stored at the indicated address.
  */
 uint16_t mem_read(uint16_t address){
+  if(is_user_mode() && (address < 0x3000 || address > 0xFDFF)){
+    except(0x02);
+    return 0x0;
+  }
+
   if (address == KBDR_ADDR){
     iomap[KBSR] = 0x7FFF & iomap[KBSR];
   }
@@ -71,6 +76,12 @@ uint16_t mem_read(uint16_t address){
  *   character, or some other type of data.
  */
 void mem_write(uint16_t address, uint16_t val){
+  if (is_user_mode() && (address < 0x3000 || address > 0xFDFF))
+  {
+    except(0x02);
+    return;
+  }
+
   if(address == DDR_ADDR){
     iomap[DSR] = 0x7FFF & iomap[DSR];
   }
@@ -475,6 +486,11 @@ void jsr(uint16_t i)
  */
 void rti(uint16_t i) 
 {
+  if(is_user_mode()){
+    except(0x00);
+    return;
+  }
+
   reg[PSR] = mem_read(reg[R6]);
   pop();
   reg[RPC] = mem_read(reg[R6]);
@@ -497,7 +513,9 @@ void rti(uint16_t i)
  *   destination and source register operands, and to extract the
  *   second source register or the immediate value encoded in the
  */
-void res(uint16_t i) {}
+void res(uint16_t i) {
+  except(0x01);
+}
 
 /** @brief trap instruction
  *
@@ -912,3 +930,19 @@ bool is_running()
  *   the exception vector number we use to index into the exception service
  *   vector table.
  */
+void except(uint16_t i)
+{
+  i += 0x0100;
+  uint16_t temp = reg[PSR];
+
+  if (is_user_mode())
+  {
+    reg[USP] = reg[R6];
+    reg[R6] = reg[SSP];
+    supervisor_mode();
+  }
+
+  push(reg[RPC]);
+  push(temp);
+  reg[RPC] = mem_read(i);
+}

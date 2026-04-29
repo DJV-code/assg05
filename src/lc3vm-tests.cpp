@@ -1,9 +1,9 @@
 /** @file lc3vm-tests.cpp
  * @brief Unit tests for LC-3 microarchitecture/VM simulator.
  *
- * @author Student Name
- * @note   cwid: 123456
- * @date   Spring 2024
+ * @author Daniel Vega
+ * @note   cwid: 50311305
+ * @date   Spring 2026
  * @note   ide:  VS Code Editor / IDE ; g++ 8.2.0 / GNU Make 4.2.1
  *
  * Unit tests for assignment 03, implementaiton of LC-3

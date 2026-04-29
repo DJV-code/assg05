@@ -1,9 +1,9 @@
 /** @file lc3vm.h
  * @brief LC-3 VM API
  *
- * @author Student Name
- * @note   cwid: 123456
- * @date   Spring 2024
+ * @author Daniel Vega
+ * @note   cwid: 50311305
+ * @date   Spring 2026
  * @note   ide:  g++ 8.2.0 / GNU Make 4.2.1
  *
  * Header include file for LC-3 simulator API/functions.
@@ -155,6 +155,7 @@ void disable_clock();
 bool is_running();
 
 // task 7 exceptions
+void except(uint16_t i);
 
 #ifdef TEST
 } // end extern C for C++ test runner

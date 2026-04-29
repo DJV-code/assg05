@@ -1,9 +1,9 @@
 /** @file lc3vm_dbg.c
  * @brief LC-3 VM Debug / Test
  *
- * @author Student Name
- * @note   cwid: 123456
- * @date   Spring 2024
+ * @author Daniel Vega
+ * @note   cwid: 50311305
+ * @date   Spring 2026
  * @note   ide:  g++ 8.2.0 / GNU Make 4.2.1
  *
  * Implementation of LC-3 helper functions, useful
@@ -57,9 +57,7 @@ void fprintf_mem_nonzero(FILE* f, uint16_t* mem, uint32_t stop)
 }
 
 void fprintf_reg(FILE* f, uint16_t* reg, int idx)
-{
-  fprintf(stdout, "reg[%d]=0x%.04x\n", idx, reg[idx]);
-}
+{ fprintf(stdout, "reg[%d]=0x%.04x\n", idx, reg[idx]); }
 
 void fprintf_reg_all(FILE* f, uint16_t* reg, int size)
 {

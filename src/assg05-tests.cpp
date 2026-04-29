@@ -1,9 +1,9 @@
 /** @file assg05-tests.cpp
  * @brief Unit tests for OS assg 05
  *
- * @author Student Name
- * @note   cwid: 123456
- * @date   Spring 2024
+ * @author Daniel Vega
+ * @note   cwid: 50311305
+ * @date   Spring 2026
  * @note   ide:  VS Code Editor / IDE ; g++ 8.2.0 / GNU Make 4.2.1
  *
  * Unit tests for assignment 03, implementaiton of LC-3
@@ -26,10 +26,10 @@ using namespace std;
 #define task5
 #define task6_1
 #define task6_2
-#undef task7_1
-#undef task7_2
-#undef task7_3
-#undef task7_4
+#define task7_1
+#define task7_2
+#define task7_3
+#define task7_4
 
 /**
  * @brief Task 1: Test privilege and priority functions in PSR
