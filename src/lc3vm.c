@@ -47,13 +47,10 @@ uint16_t PC_START = 0x3000;
  *   later as something other than an unsigned integer, but this function
  *   simply reads and returns the 16 bits stored at the indicated address.
  */
-uint16_t mem_read(uint16_t address){
-  if(is_user_mode() && (address < 0x3000 || address > 0xFDFF)){
-    except(0x02);
-    return 0x0;
-  }
-
-  if (address == KBDR_ADDR){
+uint16_t mem_read(uint16_t address)
+{
+  if (address == KBDR_ADDR)
+  {
     iomap[KBSR] = 0x7FFF & iomap[KBSR];
   }
 
@@ -75,14 +72,10 @@ uint16_t mem_read(uint16_t address){
  *   stored where requested, it could actually be a signed number, or an ascii
  *   character, or some other type of data.
  */
-void mem_write(uint16_t address, uint16_t val){
-  if (is_user_mode() && (address < 0x3000 || address > 0xFDFF))
+void mem_write(uint16_t address, uint16_t val)
+{
+  if (address == DDR_ADDR)
   {
-    except(0x02);
-    return;
-  }
-
-  if(address == DDR_ADDR){
     iomap[DSR] = 0x7FFF & iomap[DSR];
   }
 
@@ -341,9 +334,7 @@ void ldr(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void lea(uint16_t i)
-{
-  reg[DR(i)] = reg[RPC] + PCOFF9(i);
-}
+{ reg[DR(i)] = reg[RPC] + PCOFF9(i); }
 
 /** @brief store to PC + offset
  *
@@ -359,9 +350,7 @@ void lea(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void st(uint16_t i)
-{
-  mem_write(reg[RPC] + PCOFF9(i), reg[DR(i)]);
-}
+{ mem_write(reg[RPC] + PCOFF9(i), reg[DR(i)]); }
 
 /** @brief store indirect
  *
@@ -378,9 +367,7 @@ void st(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void sti(uint16_t i)
-{
-  mem_write(mem_read(reg[RPC] + PCOFF9(i)), reg[DR(i)]);
-}
+{ mem_write(mem_read(reg[RPC] + PCOFF9(i)), reg[DR(i)]); }
 
 /** @brief store offset relative to base address
  *
@@ -396,9 +383,7 @@ void sti(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void str(uint16_t i)
-{
-  mem_write(reg[SR1(i)] + OFF6(i), reg[DR(i)]);
-}
+{ mem_write(reg[SR1(i)] + OFF6(i), reg[DR(i)]); }
 
 /** @brief jump unconditionally
  *
@@ -412,9 +397,7 @@ void str(uint16_t i)
  *   second source register or the immediate value encoded in the
  */
 void jmp(uint16_t i)
-{
-  reg[RPC] = reg[SR1(i)];
-}
+{ reg[RPC] = reg[SR1(i)]; }
 
 /** @brief conditional branch
  *
@@ -484,7 +467,7 @@ void jsr(uint16_t i)
  * @param i The instruction.  The bits of the instruction we are
  *   executing.
  */
-void rti(uint16_t i) 
+void rti(uint16_t i)
 {
   if(is_user_mode()){
     except(0x00);
@@ -496,7 +479,7 @@ void rti(uint16_t i)
   reg[RPC] = mem_read(reg[R6]);
   pop();
 
-  if(is_user_mode())
+  if (is_user_mode())
   {
     reg[SSP] = reg[R6];
     reg[R6] = reg[USP];
@@ -529,7 +512,7 @@ void res(uint16_t i) {
  *   executing.  The low 7 bits i[7:0] contain the trap service vector
  *   index to be invoked.
  */
-void trap(uint16_t i) 
+void trap(uint16_t i)
 {
   uint16_t temp = reg[PSR];
 
@@ -600,8 +583,8 @@ void init(uint16_t offset)
 
   // set MCR/PSR, e.g. enable the clock, set priority to 0 and
   // start in user mode
-   enable_clock();
-   user_mode();
+  enable_clock();
+  user_mode();
 
   // initialize memory mapped status registers
   iomap[KBSR] = 0x0000; // 0 indicates no key is available yet for a program to read
@@ -795,7 +778,7 @@ void ld_img(char* fname)
  */
 bool is_user_mode()
 {
-  if(0x8000 & reg[PSR])
+  if (0x8000 & reg[PSR])
   {
     return true;
   }
@@ -811,9 +794,7 @@ bool is_user_mode()
  * that we are now running in the less privileged user mode.
  */
 void user_mode()
-{
-  reg[PSR] = (0x8000 | reg[PSR]);
-}
+{ reg[PSR] = (0x8000 | reg[PSR]); }
 
 /** @brief set supervisor mode
  *
@@ -821,9 +802,7 @@ void user_mode()
  * to indicate that we are now running in the more privileged supervisor mode.
  */
 void supervisor_mode()
-{
-  reg[PSR] = (0x7FFF & reg[PSR]);
-}
+{ reg[PSR] = (0x7FFF & reg[PSR]); }
 
 /** @brief get priority
  *
@@ -835,9 +814,7 @@ void supervisor_mode()
  *   0 - 7 are possible
  */
 uint16_t priority()
-{
-  return (0x0007 & (reg[PSR] >> 8));
-}
+{ return (0x0007 & (reg[PSR] >> 8)); }
 
 /** @brief set priority
  *
@@ -850,9 +827,7 @@ uint16_t priority()
  *   priority.
  */
 void set_priority(uint16_t p)
-{
-  reg[PSR] = (p << 8) | (0xF8FF & reg[PSR]);
-}
+{ reg[PSR] = (p << 8) | (0xF8FF & reg[PSR]); }
 
 /** @brief push value to current stack
  *
@@ -877,9 +852,7 @@ void push(uint16_t value)
  * by the running program.
  */
 void pop()
-{
-  reg[R6] += 1;
-}
+{ reg[R6] += 1; }
 
 /** @brief enable clock run bit
  *
@@ -887,9 +860,7 @@ void pop()
  * to 1.
  */
 void enable_clock()
-{
-  reg[MCR] = 0x8000 | reg[MCR];
-}
+{ reg[MCR] = 0x8000 | reg[MCR]; }
 
 /** @brief disable clock run bit
  *
@@ -897,9 +868,7 @@ void enable_clock()
  * [15] to 0.
  */
 void disable_clock()
-{
-  reg[MCR] = 0x7FFF & reg[MCR];
-}
+{ reg[MCR] = 0x7FFF & reg[MCR]; }
 
 /** @brief test is clock running
  *
@@ -911,9 +880,7 @@ void disable_clock()
  *   system is currently running, false if not.
  */
 bool is_running()
-{
-  return 0x8000 & reg[MCR];
-}
+{ return 0x8000 & reg[MCR]; }
 
 /** @brief exception
  *
